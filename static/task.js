@@ -1,4 +1,24 @@
 
+/**********************************************************
+ * EXPERIMENTER CAN SET PROPERTIES HERE
+ **********************************************************/
+
+// which colors will be used
+var colors = ["red","green","blue","yellow","orange","purple","brown"];
+
+// how many trials?
+var ntrials = 10;
+
+// randomize block order?
+var randomizeblocks = true;
+
+// how many blocks?  the same as we have colors for now.
+var nblocks = colors.length;
+
+// which should we negate?
+var negate = [true,true,true,true,false,false,false];
+
+
 /**********************
 * Domain general code *
 **********************/
@@ -158,30 +178,6 @@ function submitdata() {
 var maxblocks = 2;
 var keydownfun = function() {};
 
-// Stimulus info
-var ncards = 8,
-    cardnames = [
-	"static/images/STIM00.PNG",
-	"static/images/STIM01.PNG",
-	"static/images/STIM02.PNG",
-	"static/images/STIM03.PNG",
-	"static/images/STIM04.PNG",
-	"static/images/STIM05.PNG",
-	"static/images/STIM06.PNG",
-	"static/images/STIM07.PNG",
-	"static/images/STIM08.PNG",
-	"static/images/STIM09.PNG",
-	"static/images/STIM10.PNG",
-	"static/images/STIM11.PNG",
-	"static/images/STIM12.PNG",
-	"static/images/STIM13.PNG",
-	"static/images/STIM14.PNG",
-	"static/images/STIM15.PNG"],
-	categorynames= [ "A", "B" ];
-
-// Interface variables
-var cardh = 180, cardw = 140, upper = 0, left = 0, imgh = 100, imgw = 100;
-
 // Task objects
 var testobject;
 
@@ -270,19 +266,59 @@ var TestPhase = function() {
 	    that = this, // make 'this' accessble by privileged methods
 	    lock,
 	    stimimage,
-	    buttonson,
-	    prescard,
-	    testcardsleft = new Array();
+	    buttonson;
 	
 	this.hits = new Array();
 	
 	var acknowledgment = '<p>Thanks for your response!</p>';
-	var textprompt = '<p id="prompt">Type<br> "R" for Red<br>"B" for blue<br>"G" for green.';
+	var textprompt = '<p id="prompt">Type<br> "F" for left<br>"J" for right<br>';
+	var blockprompt = '<p id="prompt">Press the space bar to begin.</p>';
 	showpage( 'test' );
 	
 	var addprompt = function() {
 		buttonson = new Date().getTime();
 		$('#query').html( textprompt ).show();
+	};
+
+	var addblockprompt = function() {
+		$('#query').html( blockprompt ).show();
+	};
+
+	var clearprompt = function() {
+		$('#query').html( "" ).show();
+	};
+
+	var clearinstructions = function() {
+		$('#query').html( "" ).show();
+	};
+
+
+        // some colors need to be tweaked.  this is where we do it.
+	var convertcolor = function(color) {
+	    console.log("converting colors");
+	    switch(color) {
+	    case "red":
+		console.log("red conversion");
+		return "rgb(255,0,0)";
+		break;
+	    case "orange":
+		console.log("orange conversion")
+		return "rgb(255,165,0)";
+		break;
+	    case "brown":
+		console.log("brown conversion")
+		return "rgb(139,69,19)";
+		break;
+
+	    default:
+		return color;
+		
+	    }
+	    return color;
+	};
+
+	var addinstruct = function(ins) {
+		$('#instructions').html( ins ).show();
 	};
 	
 	var finishblock = function() {
@@ -291,78 +327,180 @@ var TestPhase = function() {
 	};
 	
 	var responsefun = function( e) {
+	        console.log("===> Caught response.")
 		if (!listening) return;
 			keyCode = e.keyCode;
-		var response;
-		switch (keyCode) {
-			case 82:
-				// "R"
-				response="red";
-				break;
-			case 71:
-				// "G"
-				response="green";
-				break;
-			case 66:
-				// "B"
-				response="blue";
-				break;
-			default:
-				response = "";
-				break;
-		}
-		if ( response.length>0 ) {
+	        console.log("===> Listening!");
+	        console.log("===> Key pressed: " + keyCode);
+	        if ( instructing && keyCode==32) {
+		    instructing = false;
+		    listening = false;
+		    responsefun = function() {};		    
+		    removecolor();
+		    nexttrial();		    
+		} else {
+
+		    var response;
+		    switch (keyCode) {
+		    case 70:
+			// "F"
+			response="left";
+			break;
+		    case 74:
+			// "J"
+			response="right";
+			break;
+		    default:
+			response = "";
+			break; }
+
+		    if ( response.length>0 ) {
+		        console.log("===> Responded: " + response)
+		        console.log(stim)
 			listening = false;
 			responsefun = function() {};
 			var hit = response == stim[1];
 			var rt = new Date().getTime() - wordon;
 			recordtesttrial (stim[0], stim[1], stim[2], response, hit, rt );
-			remove_word();
-			nextword();
+		        removecolor();
+			nexttrial();
+		    }
 		}
 	};
 
-	var nextword = function () {
+	var nexttrial = function () {
 		if (! stims.length) {
 			finishblock();
 		}
-		else {
-			stim = stims.pop();
-			show_word( stim[0], stim[1] );
-			wordon = new Date().getTime();
-			//stimimage = testcardpaper.image( cardnames[getstim(prescard)], 0, 0, imgw, imgh);
-			
-			addprompt();
-                        listening = true;
+		else {		        
+			if (dontpop) {
+			    // next time do pop
+			    dontpop = false; }
+		        else {
+			    stim = stims.pop();}			    
+		        // for a new block
+		        if (stim[4] != thisblock) {
+		            addinstruct(stim[3]);
+			    clearprompt();
+			    // wait 3 seconds before continuing
+			    setTimeout(function(){
+				thisblock = stim[4];
+				listening = true;
+				instructing = true;
+				addblockprompt();
+				dontpop = true;
+				// next time don't pop
+			    },3000);
+			}
+			else {
+			    addinstruct(textprompt);
+			    console.log("====> trying to remove instructions")
+			    showcolor( convertcolor(stim[0]), convertcolor(stim[1]) );
+			    //show_word( convertcolor(stim[0]));
+			    wordon = new Date().getTime();
+			    //addprompt();
+			    clearprompt();
+                            listening = true;
+			}
 		}
 	};
+
 	
 	//Set up stimulus.
-	var R = Raphael("stim", 400, 100),
+	var R = Raphael("stimleft", 400, 200),
 		font = "64px Helvetica";
-	
-	var show_word = function(text, color) {
-		R.text( 200, 50, text ).attr({font: font, fill: color});
+
+	var Rb = Raphael("stimright", 400, 200),
+		font = "64px Helvetica";
+
+	var showcolor = function(colorl, colorr) {
+	        R.circle(200, 100, 100).attr({fill: colorl, "fill-opacity": 1, "stroke-width": 0});
+	        Rb.circle(200, 100, 100).attr({fill: colorr, "fill-opacity": 1, "stroke-width": 0});
 	};
-	var remove_word = function(text, color) {
+
+	var removecolor = function() {
 		R.clear();
+	        Rb.clear();
 	};
+
+
 	$("body").focus().keydown(responsefun); 
         listening = false;
 
-	var stims = [
-		["SHIP", "red", "unrelated"],
-		["MONKEY", "green", "unrelated"],
-		["ZAMBONI", "blue", "unrelated"],
-		["RED", "red", "congruent"],
-		["GREEN", "green", "congruent"],
-		["BLUE", "blue", "congruent"],
-		["GREEN", "red", "incongruent"],
-		["BLUE", "green", "incongruent"],
-		["RED", "blue", "incongruent"]
-		];
-	shuffle( stims );
-	nextword();
+        // generate all stimuli beforehand
+
+        var stims =new Array(); 
+        var targetcolors =new Array(); 
+        shuffle(colors);        
+        var othercolors = colors; 
+
+        lasttarget = "";
+        lastother = "";
+    
+        var targetsbyblock = new Array();
+        var othersbyblock = new Array();        
+
+        for (var block = 0; block < nblocks-1; block++) {
+	    targetcolors[targetcolors.length] = othercolors.pop();
+	    targetsbyblock[block] = targetcolors.slice(0);
+	    othersbyblock[block] = othercolors.slice(0);
+	}	    
+
+        var allblocks = new Array();
+        for (var block = 0; block < nblocks-1; block++) {
+	    allblocks[allblocks.length] = block;
+	}              
+
+        // add randomization of block order
+        if (randomizeblocks) {
+            shuffle(allblocks);
+	}
+
+        for (var b = 0; b < nblocks-1; b++) {
+	    block = allblocks[b];
+	    console.log("Beginning block " + (1+block));
+	    //targetcolors[targetcolors.length] = othercolors.pop();
+	    targetcolors = targetsbyblock[block];
+	    othercolors = othersbyblock[block];
+	    targettext = "";
+	    for (var i = 0; i<targetcolors.length-1; i++) {targettext=targettext+targetcolors[i].toUpperCase()+" or "}
+	    targettext = targettext+targetcolors[targetcolors.length-1].toUpperCase();
+	    othertext = "";
+	    for (var i = 0; i<othercolors.length-1; i++) {othertext=othertext+othercolors[i].toUpperCase()+" or "}
+	    othertext = othertext+othercolors[othercolors.length-1].toUpperCase();
+	    for (var trial = 0; trial < ntrials; trial++) {
+		// don't show the same color pair twice in a row
+		while (targetcolors[0]==lasttarget && othercolors[0]==lastother) {
+		    console.log("===========> shuffling!")
+		    shuffle(targetcolors);
+		    shuffle(othercolors);
+		}
+		console.log(targetcolors[0] + "," + othercolors[0])
+		if (negate[block]) {
+		    displaytext = "Choose the circle that is <b>NOT</b> "+othertext;
+		} else {
+		    displaytext = "Choose that circle that is "+targettext;
+		}
+		if (Math.random()>0.5) {
+		    stims[stims.length] = [targetcolors[0], othercolors[0],"left",displaytext,block];
+		} else {
+		    stims[stims.length] = [othercolors[0], targetcolors[0],"right",displaytext,block];
+		}
+
+		lasttarget = targetcolors[0];
+		lastother = othercolors[0];
+	    }
+	}
+
+        stims.reverse();
+	
+	//shuffle( stims );
+        thisblock = -1;
+        nexttrial();
+
+        // initialize that we should get a new stimulus
+        var dontpop = false;
+
 	return this;
 };
 
