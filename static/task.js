@@ -12,6 +12,12 @@ var ntrials = 10;
 // randomize block order?
 var randomizeblocks = true;
 
+// include instructions?
+var showinstructions = true;
+
+// give feedback?
+var givefeedback = true;
+
 // how many blocks?  the same as we have colors for now.
 var nblocks = colors.length;
 
@@ -192,8 +198,16 @@ function recordinstructtrial (instructname, rt ) {
 	trialvals = [workerId, assignmentId, "INSTRUCT", instructname, rt];
 	datastring = datastring.concat( trialvals, "\n" );
 }
-function recordtesttrial (word, color, trialtype, resp, hit, rt ) {
-	trialvals = [workerId, assignmentId, currenttrial,  "TEST", word, color, hit, resp, hit, rt];
+// function recordtesttrial (word, color, trialtype, resp, hit, rt ) {
+// 	trialvals = [workerId, assignmentId, currenttrial,  "TEST", word, color, hit, resp, hit, rt];
+// 	datastring = datastring.concat( trialvals, "\n" );
+// 	currenttrial++;
+// }
+
+function recordtesttrial (stim, response, hit, rt) {
+	trialvals = [workerId, assignmentId, stim[0], stim[1], stim[2], stim[3], stim[4], stim[5], response, rt];
+        console.log("Writing data:\n");
+        console.log(trialvals);
 	datastring = datastring.concat( trialvals, "\n" );
 	currenttrial++;
 }
@@ -232,7 +246,8 @@ var Instructions = function( screens ) {
 
 	this.recordtrial = function() {
 		rt = (new Date().getTime()) - timestamp;
-		recordinstructtrial( currentscreen, rt  );
+	        // don't record the rt for this
+		//recordinstructtrial( currentscreen, rt  );
 	};
 	
 	this.nextForm = function () {
@@ -278,6 +293,10 @@ var TestPhase = function() {
 	var addprompt = function() {
 		buttonson = new Date().getTime();
 		$('#query').html( textprompt ).show();
+	};
+
+	var setfeedback = function(msg) {
+		$('#query').html( msg ).show();
 	};
 
 	var addblockprompt = function() {
@@ -359,11 +378,21 @@ var TestPhase = function() {
 		        console.log(stim)
 			listening = false;
 			responsefun = function() {};
-			var hit = response == stim[1];
+			var hit = response == stim[2];
 			var rt = new Date().getTime() - wordon;
-			recordtesttrial (stim[0], stim[1], stim[2], response, hit, rt );
-		        removecolor();
-			nexttrial();
+			recordtesttrial (stim, response, hit, rt );	        
+			if (givefeedback) {
+			    if (hit) {
+				setfeedback('<p style="color:white; font-size:20pt">Correct!</p>'); }
+			    else {
+				setfeedback('<p style="color:black;">.</p><br/><p style="color:white; font-size:20pt">Wrong!</p>');} 
+			    setTimeout(function(){
+				removecolor();
+				nexttrial();
+			    },1000);
+			} else {
+			    removecolor();
+			    nexttrial();}
 		    }
 		}
 	};
@@ -380,7 +409,10 @@ var TestPhase = function() {
 			    stim = stims.pop();}			    
 		        // for a new block
 		        if (stim[4] != thisblock) {
-		            addinstruct(stim[3]);
+			    if (showinstructions) {
+				addinstruct(stim[3]); }
+			    else {
+				addinstruct("");}
 			    clearprompt();
 			    // wait 3 seconds before continuing
 			    setTimeout(function(){
@@ -482,9 +514,9 @@ var TestPhase = function() {
 		    displaytext = "Choose that circle that is "+targettext;
 		}
 		if (Math.random()>0.5) {
-		    stims[stims.length] = [targetcolors[0], othercolors[0],"left",displaytext,block];
+		    stims[stims.length] = [targetcolors[0], othercolors[0],"left",displaytext,block, b];
 		} else {
-		    stims[stims.length] = [othercolors[0], targetcolors[0],"right",displaytext,block];
+		    stims[stims.length] = [othercolors[0], targetcolors[0],"right",displaytext,block, b];
 		}
 
 		lasttarget = targetcolors[0];
@@ -510,7 +542,7 @@ var TestPhase = function() {
 var givequestionnaire = function() {
 	var timestamp = new Date().getTime();
 	showpage('postquestionnaire');
-	recordinstructtrial( "postquestionnaire", (new Date().getTime())-timestamp );
+	//recordinstructtrial( "postquestionnaire", (new Date().getTime())-timestamp );
 	$("#continue").click(function () {
 		finish();
 		submitquestionnaire();
