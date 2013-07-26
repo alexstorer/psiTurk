@@ -1,3 +1,80 @@
+Amazon Quick Start
+==================
+Follow these instructions to set up this code on Amazon's EC2.
+1.  Make an Amazon Web Services Account
+    *  Sign up here: https://portal.aws.amazon.com/gp/aws/developer/registration/index.html
+2.  Make an EC2 Instance
+    1. Go to the Amazon EC2 Portal: https://console.aws.amazon.com/ec2
+    2. Click "Launch Instance"
+    3. Click "Continue" to use the Classic Wizard
+    4. Select the Ubuntu Server 13.04 64 bit instance.  This is available for the Free Tier for beginning EC2 users.
+    5. Click "Continue" to launch the instance with the default availability zone and instance size.
+    6. Click "Continue" to accept the default advanced instance options.
+    7. Click "Continue" to accept the default Storage Device Configuration
+    8. Add a tag called Name (this is already filled in) with the Value "PsiTurk" (or anything else you can recognize)
+    9. Click on "Create a new Key Pair" and enter a name.
+	* Click on Create and Download your key pair
+	* Click Continue
+   10. Click on "Create a new Security Group"
+	* Click on the dropbox to create a new rule and select MYSQL. Click Add Rule.
+	* Create a Custom TCP rule with port range 5000-6000. Click Add Rule.
+	* Create a SSH rule.
+	* Click Continue
+   11. Click "Launch", then Click "Close"
+   12. Your instance will now be running!  Click on "PsiTurk" (or whatever you called your instance) and write down its IP address.  This will look something like `ec2-23-21-28-85.compute-1.amazonaws.com`
+3.  SSH to your Amazon Instance.
+    * *Note:* The username for this instance will be `ubuntu`
+    * Windows users, please use these instructions: http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html
+    * Mac users, open a Terminal and type the following:
+	* `chmod 700 ~/Downloads/<your key name>.pem`
+	* `ssh -i ~/Downloads/<your key name>.pem ubuntu@<your-ip-address>`
+	* *Note:* My key is saved in the `~/Downloads` folder - yours may be somewhere else!
+4.  Install git on your server by typing the following.
+    * `sudo apt-get install git`
+5.  Get the code for the experiment
+    * `git clone https://github.com/alexstorer/psiTurk.git`
+    * Enter the directory by typing `cd psiTurk`
+6.  Install the required software dependencies and setup by typing
+    * `sh < setup.sh`
+7.  Change the configuration files
+    Your configuration file is stored as `config.txt` in the `psiTurk` directory on amazon.  You need to edit this file!  You should be able to use a program like WinSCP (on Windows) or Cyberduck (on Mac) to transfer these files to your desktop, edit them, and then transfer them back to Amazon.
+    You must change a number of these items in order to start the experiment and post it to MTurk:
+    * AWS Access Keys
+    * HIT Configuration
+    * Server Parameters
+8.  Change the template html files
+    These files live in a folder called `templates`, and contain the text for the consent form, the instructions, and so on.  Make sure they contain the relevant information for your experiment.
+9.  Start the experiment!
+    You need to publish your experiment to MTurk, and then to start the web server that is hosting the experiment.
+    After using ssh to connect to the Amazon server, type the following:
+    * `cd ~/psiTurk; python mturk/createHIT.py`
+    * `screen -S exp`
+    * `sh < run_gunicon.sh`
+10. Stop the experiment.
+    * In order to stop the experiment, you need to ssh to the Amazon server and type the following:
+    * `screen -r exp`
+    * Press control and c at the same time
+
+How to make changes
+===================
+To make changes to the experiment the file to change is located in:
+
+`psiTurk/static/task.js`
+
+If you change this file, it will change the experiment.  Your browser will wish to cache this file on your computer, however, so if you visit the experiment from the same browser, you will need to change the version of the javascript file so that it will loaded from scratch when the HTML file is loaded.  This file is located in:
+
+`psiTurk/templates/exp.html`
+
+The reference to `static/task.js` must be changed to, e.g., `static/task.js?v=1.01` - each time you change the javascipt file, you must change this reference so that the file will be loaded anew.
+
+How to get your data
+====================    
+To download your data, you need to open your experiment in a web browser:
+
+If the address of your study is `ec2-23-21-28-85.compute-1.amazonaws.com`, then direct your browser to:
+
+`ec2-23-21-28-85.compute-1.amazonaws.com/dumpdata`
+
 
 What is this?
 ============

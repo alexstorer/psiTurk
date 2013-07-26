@@ -2,6 +2,10 @@
 /**********************************************************
  * EXPERIMENTER CAN SET PROPERTIES HERE
  **********************************************************/
+// Write any information that you need to identify the data from this experiment
+// If you change the experiment, change this version tag, and then store the notes
+// in your "lab notebook"
+var exptag = "V1";
 
 // which colors will be used
 var colors = ["red","green","blue","yellow","orange","purple","brown"];
@@ -9,21 +13,28 @@ var colors = ["red","green","blue","yellow","orange","purple","brown"];
 // how many trials?
 var ntrials = 10;
 
-// randomize block order?
-var randomizeblocks = true;
-
 // include instructions?
 var showinstructions = true;
 
 // give feedback?
 var givefeedback = true;
 
+// don't repeat colors if you can avoid it?
+var avoidrepeatcolors = true;
+
 // how many blocks?  the same as we have colors for now.
 var nblocks = colors.length;
 
-// which should we negate?
-var negate = [true,true,true,true,false,false,false];
+// Blocks are set by default in the following order:
+// One target, Two targets...etc.
+// JavaScript counts from zero!
+var allblocks = [0,1,2,3,4,5,6];
 
+// randomize block order?
+var randomizeblocks = false;
+
+// which should we negate?
+var negate = [false,false,false,false,false,false,false];
 
 /**********************
 * Domain general code *
@@ -205,7 +216,8 @@ function recordinstructtrial (instructname, rt ) {
 // }
 
 function recordtesttrial (stim, response, hit, rt) {
-	trialvals = [workerId, assignmentId, stim[0], stim[1], stim[2], stim[3], stim[4], stim[5], response, rt];
+	trialvals = ["tag:"+exptag,workerId, assignmentId, stim[0], stim[1], stim[2], stim[3], stim[4], stim[5], response, rt, 
+		     'avoidrepeatcolors:'+avoidrepeatcolors, 'givefeedback:'+givefeedback];
         console.log("Writing data:\n");
         console.log(trialvals);
 	datastring = datastring.concat( trialvals, "\n" );
@@ -382,14 +394,15 @@ var TestPhase = function() {
 			var rt = new Date().getTime() - wordon;
 			recordtesttrial (stim, response, hit, rt );	        
 			if (givefeedback) {
+			    removecolor();
 			    if (hit) {
-				setfeedback('<p style="color:white; font-size:20pt">Correct!</p>'); }
+				setfeedback('<p style="color:white; font-size:40pt">Correct!</p>'); }
 			    else {
-				setfeedback('<p style="color:black;">.</p><br/><p style="color:white; font-size:20pt">Wrong!</p>');} 
+				setfeedback('<p style="color:white; font-size:40pt">Wrong!</p>');} 
 			    setTimeout(function(){
 				removecolor();
 				nexttrial();
-			    },1000);
+			    },2000);
 			} else {
 			    removecolor();
 			    nexttrial();}
@@ -478,10 +491,10 @@ var TestPhase = function() {
 	    othersbyblock[block] = othercolors.slice(0);
 	}	    
 
-        var allblocks = new Array();
-        for (var block = 0; block < nblocks-1; block++) {
-	    allblocks[allblocks.length] = block;
-	}              
+        // var allblocks = new Array();
+        // for (var block = 0; block < nblocks-1; block++) {
+	//     allblocks[allblocks.length] = block;
+	// }              
 
         // add randomization of block order
         if (randomizeblocks) {
@@ -502,10 +515,18 @@ var TestPhase = function() {
 	    othertext = othertext+othercolors[othercolors.length-1].toUpperCase();
 	    for (var trial = 0; trial < ntrials; trial++) {
 		// don't show the same color pair twice in a row
-		while (targetcolors[0]==lasttarget && othercolors[0]==lastother) {
-		    console.log("===========> shuffling!")
-		    shuffle(targetcolors);
-		    shuffle(othercolors);
+		if (avoidrepeatcolors && targetcolors.length>1 && othercolors.length>1) {
+		    while (targetcolors[0]==lasttarget || othercolors[0]==lastother) {
+			console.log("===========> shuffling!")
+			shuffle(targetcolors);
+			shuffle(othercolors);
+		    }
+		} else {
+		    while (targetcolors[0]==lasttarget && othercolors[0]==lastother) {
+			console.log("===========> shuffling!")
+			shuffle(targetcolors);
+			shuffle(othercolors);
+		    }
 		}
 		console.log(targetcolors[0] + "," + othercolors[0])
 		if (negate[block]) {
