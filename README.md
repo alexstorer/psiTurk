@@ -1,8 +1,10 @@
 Amazon Quick Start
 ==================
 Follow these instructions to set up this code on Amazon's EC2.
+
 1.  Make an Amazon Web Services Account
     *  Sign up here: https://portal.aws.amazon.com/gp/aws/developer/registration/index.html
+
 2.  Make an EC2 Instance
     1. Go to the Amazon EC2 Portal: https://console.aws.amazon.com/ec2
     2. Click "Launch Instance"
