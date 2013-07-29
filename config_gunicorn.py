@@ -10,6 +10,7 @@ def from_config_file():
     
     # Address to bind
     bind = config.get("Server Parameters", "host") + ":" + config.get("Server Parameters", "port")
+    #print bind
     
     # Logging
     # I can't tell if this would be too verbose:
@@ -19,6 +20,6 @@ def from_config_file():
     loglevel = loglevels[config.getint("Server Parameters", "loglevel")]
     
 from_config_file()
-
+bind = "http://ec2-54-225-6-125.compute-1.amazonaws.com:5001"
 print "Running on:", bind
 print "Logging to:", errorlog

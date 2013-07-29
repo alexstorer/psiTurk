@@ -163,9 +163,16 @@ strong {
 }
 
 
-#stim {
+#stimleft {
 	margin: 20px auto;
+	float: left;
 }
+
+#stimright {
+	margin: 20px auto;
+	float:right;
+}
+
 
 input {
     width: 100px;
