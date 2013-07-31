@@ -82,6 +82,13 @@ If the address of your study is `ec2-23-21-28-85.compute-1.amazonaws.com`, then 
 
 `ec2-23-21-28-85.compute-1.amazonaws.com/dumpdata`
 
+Database manipulation
+=====================
+If you ever need to clear out your database, from the command line run the following:
+
+`mysql -u ubuntu -e "use mturk; drop table turkdemo;"`
+
+When you restart your experiment, it should create your table anew.
 
 What is this?
 ============
