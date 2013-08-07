@@ -1,4 +1,3 @@
-
 /**********************************************************
  * EXPERIMENTER CAN SET PROPERTIES HERE
  **********************************************************/
@@ -17,10 +16,16 @@ var ntrials = 10;
 var showinstructions = true;
 
 // give feedback?
-var givefeedback = true;
+var givefeedback = false;
 
 // don't repeat colors if you can avoid it?
 var avoidrepeatcolors = true;
+
+// how long to pause between trials (in milliseconds)
+var mswait = 2000;
+
+// how long to pause between blocks
+var betweenblocksms = 3000;
 
 // how many blocks?  the same as we have colors for now.
 var nblocks = colors.length;
@@ -369,6 +374,8 @@ var TestPhase = function() {
 		    responsefun = function() {};		    
 		    removecolor();
 		    nexttrial();		    
+		} else if ( instructing) {
+		    console.log("!!! Space Bar Not Pressed.");
 		} else {
 
 		    var response;
@@ -402,10 +409,13 @@ var TestPhase = function() {
 			    setTimeout(function(){
 				removecolor();
 				nexttrial();
-			    },2000);
+			    },mswait);
 			} else {
 			    removecolor();
-			    nexttrial();}
+			    setTimeout(function(){
+				nexttrial();
+			    },mswait);
+			}
 		    }
 		}
 	};
@@ -435,7 +445,7 @@ var TestPhase = function() {
 				addblockprompt();
 				dontpop = true;
 				// next time don't pop
-			    },3000);
+			    },betweenblocksms);
 			}
 			else {
 			    addinstruct(textprompt);
@@ -572,14 +582,19 @@ var givequestionnaire = function() {
 	// postback();
 };
 var submitquestionnaire = function() {
+        appendstring = ""
 	$('textarea').each( function(i, val) {
-		datastring = datastring.concat( "\n", this.id, ":",  this.value);
+		appendstring = appendstring.concat( ",", this.id, ":",  this.value);
 	});
 	$('select').each( function(i, val) {
-		datastring = datastring.concat( "\n", this.id, ":",  this.value);
+		appendstring = appendstring.concat( ",", this.id, ":",  this.value);
 	});
+        // add other things to datastring
+        appendstring = appendstring.concat(",", "timestamp:", new Date().getTime());
+        appendstring = appendstring.concat("\n");
+        datastring = datastring.replace(/\n/g,appendstring);
 	insert_hidden_into_form(0, "assignmentid", assignmentId );
-	insert_hidden_into_form(0, "workerid", workerId );
+	insert_hidden_into_form(0, "workerid", workerId );        
 	insert_hidden_into_form(0, "data", datastring );
 	$('form').submit();
 };
