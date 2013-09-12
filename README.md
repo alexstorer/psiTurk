@@ -51,16 +51,13 @@ Follow these instructions to set up this code on Amazon's EC2.
     After using ssh to connect to the Amazon server, type the following:
     * `cd ~/psiTurk; python mturk/createHIT.py`
     * `screen -S exp`
-<<<<<<< Updated upstream
-    * `sh < run_gunicorn.sh`
-=======
     * Change the url in `startexp`
     * `sh startexp`
->>>>>>> Stashed changes
 10. Stop the experiment.
     * In order to stop the experiment, you need to ssh to the Amazon server and type the following:
     * `screen -r exp`
     * Press control and c at the same time
+    * Then type `killall gunicorn` to ensure the web server is stopped
 
 How to make changes
 ===================

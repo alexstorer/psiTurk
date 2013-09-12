@@ -21,6 +21,9 @@ var givefeedback = false;
 // don't repeat colors if you can avoid it?
 var avoidrepeatcolors = true;
 
+// randomize color choices over blocks
+var randomcolors = true;
+
 // how long to pause between trials (in milliseconds)
 var mswait = 2000;
 
@@ -33,13 +36,13 @@ var nblocks = colors.length;
 // Blocks are set by default in the following order:
 // One target, Two targets...etc.
 // JavaScript counts from zero!
-var allblocks = [0,1,2,3,4,5,6];
+var allblocks = [0,1,2,3,4,5];
 
 // randomize block order?
 var randomizeblocks = false;
 
 // which should we negate?
-var negate = [false,false,false,false,false,false,false];
+var negate = [false,false,false,false,false,false];
 
 /**********************
 * Domain general code *
@@ -500,6 +503,20 @@ var TestPhase = function() {
 	    targetsbyblock[block] = targetcolors.slice(0);
 	    othersbyblock[block] = othercolors.slice(0);
 	}	    
+
+        if (randomizecolors) {
+            var targetsbyblock = new Array();
+            var othersbyblock = new Array();        	    
+            for (var block = 0; block < nblocks-1; block++) {
+		shuffle(colors);        
+		var othercolors = colors; 
+		for (var b = 0; b < (block+1); b++) {
+		    targetcolors[targetcolors.length] = othercolors.pop();
+		}		
+		targetsbyblock[block] = targetcolors.slice(0);
+		othersbyblock[block] = othercolors.slice(0);
+	    }
+	}
 
         // var allblocks = new Array();
         // for (var block = 0; block < nblocks-1; block++) {

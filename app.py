@@ -497,7 +497,7 @@ def dumpdata():
     """
     Dumps all the data strings concatenated. Requires password authentication.
     """
-    ret = '\n'.join([subj.datastring for subj in Participant.query.all()])
+    ret = '\n'.join([subj.datastring for subj in Participant.query.all() if subj.datastring is not None])
     response = make_response( ret )
     response.headers['Content-Disposition'] = 'attachment;filename=data.csv'
     response.headers['Content-Type'] = 'text/csv'
