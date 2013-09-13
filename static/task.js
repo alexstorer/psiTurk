@@ -22,7 +22,7 @@ var givefeedback = false;
 var avoidrepeatcolors = true;
 
 // randomize color choices over blocks
-var randomcolors = true;
+var randomizecolors = true;
 
 // how long to pause between trials (in milliseconds)
 var mswait = 2000;
@@ -490,7 +490,7 @@ var TestPhase = function() {
         var stims =new Array(); 
         var targetcolors =new Array(); 
         shuffle(colors);        
-        var othercolors = colors; 
+        var othercolors = jQuery.extend(true, [], colors); 
 
         lasttarget = "";
         lastother = "";
@@ -508,8 +508,10 @@ var TestPhase = function() {
             var targetsbyblock = new Array();
             var othersbyblock = new Array();        	    
             for (var block = 0; block < nblocks-1; block++) {
+		
+		var targetcolors =new Array(); 
 		shuffle(colors);        
-		var othercolors = colors; 
+		var othercolors = jQuery.extend(true, [], colors); 
 		for (var b = 0; b < (block+1); b++) {
 		    targetcolors[targetcolors.length] = othercolors.pop();
 		}		
