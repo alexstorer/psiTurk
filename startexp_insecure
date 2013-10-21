@@ -1,0 +1,1 @@
+gunicorn --bind=ec2-54-234-170-252.compute-1.amazonaws.com:5001 --workers=1 app:app

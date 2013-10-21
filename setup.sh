@@ -6,6 +6,7 @@ sudo apt-get install mysql-server
 sudo apt-get install build-essential python-dev libmysqlclient-dev
 sudo apt-get install ec2-api-tools
 sudo apt-get install gunicorn
+sudo apt-get install expect
 sudo pip install Flask-SQLAlchemy
 sudo pip install boto
 sudo pip install mysql-python
@@ -13,10 +14,12 @@ sudo pip install mysql_connector_python
 sudo pip install config
 git clone https://github.com/alexstorer/psiTurk.git
 
+cd psiTurk
+
+sh gencertificate
+
 # Edit the config files based on what's above
 # Maybe use sed?
-
-
 
 # Do we need Amazon tools?
 
